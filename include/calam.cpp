@@ -41,12 +41,56 @@ void Calam::putLine(vec2D p1, vec2D p2, RGBA c) {
     }
   }
 }
+void Calam::putLineF(fvec2D p1, fvec2D p2, RGBA c) {
+  int x1 = int(p1.x + 0.5f);
+  int y1 = int(p1.y + 0.5f);
+  int x2 = int(p2.x + 0.5f);
+  int y2 = int(p2.y + 0.5f);
+
+  int dx = std::abs(x2 - x1);
+  int dy = std::abs(y2 - y1);
+
+  int incrementer_x = (x2 > x1) ? 1 : -1;
+  int incrementer_y = (y2 > y1) ? 1 : -1;
+
+  if (dy <= dx) {
+    int desPar = 2 * dy - dx;
+    for (int i = 0; i <= dx; ++i) {
+      putPixel({x1, y1}, c);
+      x1 += incrementer_x;
+      if (desPar < 0) {
+        desPar += 2 * dy;
+      } else {
+        desPar += 2 * dy - 2 * dx;
+        y1 += incrementer_y;
+      }
+    }
+  } else {
+    int desPar = 2 * dx - dy;
+    for (int i = 0; i <= dy; ++i) {
+      putPixel({x1, y1}, c);
+      y1 += incrementer_y;
+      if (desPar < 0) {
+        desPar += 2 * dx;
+      } else {
+        desPar += 2 * dx - 2 * dy;
+        x1 += incrementer_x;
+      }
+    }
+  }
+}
 
 void Calam::putRect(vec2D p1, vec2D p2, RGBA c) {
   putLine(p1, {p2.x, p1.y}, c);
   putLine(p1, {p1.x, p2.y}, c);
   putLine(p2, {p1.x, p2.y}, c);
   putLine(p2, {p2.x, p1.y}, c);
+}
+void Calam::putRectF(fvec2D p1, fvec2D p2, RGBA c) {
+  putLineF(fvec2D{p1.x, p1.y}, fvec2D{p2.x, p1.y}, c);
+  putLineF(fvec2D{p2.x, p1.y}, fvec2D{p2.x, p2.y}, c);
+  putLineF(fvec2D{p2.x, p2.y}, fvec2D{p1.x, p2.y}, c);
+  putLineF(fvec2D{p1.x, p2.y}, fvec2D{p1.x, p1.y}, c);
 }
 
 void Calam::putFillRect(vec2D p1, vec2D p2, RGBA c) {
@@ -66,7 +110,6 @@ void Calam::putFillRect(vec2D p1, vec2D p2, RGBA c) {
     }
   }
 }
-
 
 void Calam::putTriangle (vec2D p1, vec2D p2, vec2D p3, RGBA c) {
   putLine(p1, p2, c);
@@ -152,6 +195,28 @@ void Calam::putFillCircle(vec2D center, int radius, RGBA c) {
     x++;
   }
 }
+void Calam::putFillCircleF(fvec2D center, int radius, RGBA c) {
+  int x = 0;
+  int y = radius;
+  int p0 = 1 - radius;
+
+  while (x <= y) {
+    putLineF({center.x - x, center.y + y}, {center.x + x, center.y + y}, c);
+    putLineF({center.x - x, center.y - y}, {center.x + x, center.y - y}, c);
+    putLineF({center.x - y, center.y + x}, {center.x + y, center.y + x}, c);
+    putLineF({center.x - y, center.y - x}, {center.x + y, center.y - x}, c);
+    
+    if (p0 < 0) {
+      p0 += 2 * x + 1;
+    } else {
+      p0 += 2 * x + 1 - 2 * y;
+      y--;
+    }
+    x++;
+  }
+}
+
+
 void Calam::putEllipse (vec2D center, vec2D radius, RGBA c) {
   int x = 0, y = radius.y;
 
